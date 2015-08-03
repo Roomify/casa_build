@@ -11,4 +11,4 @@ Feature: Homepage
   Scenario: Logging into the site
     Given I am logged in as a user with the "authenticated user" role on this site
     And I am on the homepage
-    Then I should see "Menu"
+    Then I should see "Edit"
