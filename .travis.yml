@@ -1,0 +1,56 @@
+language: php
+
+php:
+  - 5.4
+
+mysql:
+  database: drupal
+  username: root
+  encoding: utf8
+
+before_script:
+  # Create DB.
+  - "mysql -e 'create database drupal;'"
+
+  # Install drush.
+  - pear channel-discover pear.drush.org
+  - pear install drush/drush
+  - phpenv rehash
+
+  # Run composer
+  - cd ./tests/behat
+  - composer install
+  - cd ../../
+
+  - drush make project.make ../roomifycasa
+  - cd ../roomifycasa
+  - sudo chmod -R 777 sites/all/modules
+  - /usr/bin/env PHP_OPTIONS="-d sendmail_path=$(which true)" drush si roomifycasa --db-url=mysql://root:@127.0.0.1/drupal --account-name=admin --account-pass=test --site-mail=webmaster@roomify.us --site-name="Casa" --yes
+  - drush cc all --yes
+
+  # Move tests dir to working dir.
+  - mv $TRAVIS_BUILD_DIR/tests .
+
+  # Setup display for selenium
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - sleep 3
+  - drush --debug runserver --server=builtin 8080 > ~/debug.txt 2>&1 &
+  - sleep 3
+
+  - wget http://selenium.googlecode.com/files/selenium-server-standalone-2.25.0.jar
+  - java -jar selenium-server-standalone-2.25.0.jar -p 4444 &
+  - sleep 5
+
+script:
+  - cd $TRAVIS_BUILD_DIR/../roomifycasa/tests/behat
+  # behat.yml includes behat.local.yml so it must exist
+  - touch behat.local.yml
+  - ./bin/behat
+
+after_failure:
+  - cat ~/debug.txt
+
+
+notifications:
+  slack: roomify:aFU6HbdZeXNYbuCAZNS1XTBT
