@@ -6,6 +6,9 @@ Feature: Homepage
   Scenario: Viewing the site title
     Given I am on the homepage
     Then I should see "The Casa"
+    Then I should see "Bedroom"
+    Then I should see "Amenities"
+    Then I should see "The Neighborhood"
 
   @api
   Scenario: Logging into the site
