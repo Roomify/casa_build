@@ -1,11 +1,4 @@
 default:
-  # paths:
-  #   features: features
-  #   bootstrap: %behat.paths.features%/bootstrap
-  # context:
-  #   parameters:
-  #     default_browser: 'goutte'
-  #   class: 'FeatureContext'
   suites:
     default:
       contexts:
@@ -14,6 +7,7 @@ default:
         - Drupal\DrupalExtension\Context\MinkContext
         - Drupal\DrupalExtension\Context\MessageContext
         - Drupal\DrupalExtension\Context\DrushContext
+        - Roomify\RoomifyExtension\Context\RoomifyContext
   extensions:
     Behat\MinkExtension:
       base_url:  'http://127.0.0.1:8080'

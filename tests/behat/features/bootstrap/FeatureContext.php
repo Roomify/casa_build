@@ -1,14 +1,29 @@
 <?php
 
-use Drupal\DrupalExtension\Context\RawDrupalContext;
-use Behat\Behat\Context\SnippetAcceptingContext;
-use Behat\Gherkin\Node\PyStringNode;
-use Behat\Gherkin\Node\TableNode;
+use Drupal\DrupalExtension\Context\DrupalSubContextBase,
+    Drupal\Component\Utility\Random;
+
+use Behat\Gherkin\Node\PyStringNode,
+    Behat\Gherkin\Node\TableNode;
+
+use Behat\Behat\Hook\Scope\BeforeScenarioScope,
+    Behat\Behat\Hook\Scope\AfterScenarioScope;
+
+use Behat\Behat\Context\CustomSnippetAcceptingContext;
+
+use Drupal\DrupalDriverManager;
 
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext {
+class FeatureContext extends DrupalSubContextBase implements CustomSnippetAcceptingContext {
+
+  /**
+   * The Mink context
+   *
+   * @var Drupal\DrupalExtension\Context\MinkContext
+   */
+  private $minkContext;
 
   /**
    * Initializes context.
@@ -17,91 +32,24 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
    * You can also pass arbitrary arguments to the
    * context constructor through behat.yml.
    */
-  public function __construct() {
+  public function __construct(DrupalDriverManager $drupal) {
+    parent::__construct($drupal);
+  }
+
+  public static function getAcceptedSnippetType() { return 'regex'; }
+
+  /**
+   * @BeforeScenario
+   */
+  public function before(BeforeScenarioScope $scope) {
+    $environment = $scope->getEnvironment();
+    $this->minkContext = $environment->getContext('Drupal\DrupalExtension\Context\MinkContext');
   }
 
   /**
-   * Check logged in status.
-   *
-   * Overrides RawDrupalContext::loggedIn().
-   * @see https://github.com/jhedstrom/drupalextension/pull/131.
+   * @AfterScenario
    */
-  public function loggedIn() {
-    $session = $this->getSession();
-    $page = $session->getPage();
-
-    // Body class check from pull/131.
-    $body = $page->find('css', 'body');
-    return $body->hasClass('logged-in');
-  }
-
-  /**
-   * RawDrupalContext::assertAnonymousUser() with better logged in check.
-   *
-   * @Given I am an anonymous user on this site
-   * @Given I am not logged in on this site
-   */
-  public function assertAnonymousUserOnThisSite() {
-    // Verify the user is logged out.
-    if ($this->loggedIn()) {
-      $this->logout();
-    }
-  }
-
-  /**
-   * Creates and authenticates a user with the given role(s).
-   *
-   * RawDrupalContext::assertAuthenticatedByRole() with better logged in check.
-   *
-   * @Given I am logged in as a user with the :role role(s) on this site
-   */
-  public function assertAuthenticatedByRoleOnThisSite($role) {
-    // Check if a user with this role is already logged in.
-    if (!$this->loggedInWithRole($role)) {
-      // Create user (and project)
-      $user = (object) array(
-        'name' => $this->getRandom()->name(8),
-        'pass' => $this->getRandom()->name(16),
-        'role' => $role,
-      );
-      $user->mail = "{$user->name}@example.com";
-
-      $this->userCreate($user);
-
-      $roles = explode(',', $role);
-      $roles = array_map('trim', $roles);
-      foreach ($roles as $role) {
-        if (!in_array(strtolower($role), array('authenticated', 'authenticated user'))) {
-          // Only add roles other than 'authenticated user'.
-          $this->getDriver()->userAddRole($user, $role);
-        }
-      }
-
-      // Login.
-      $this->login();
-    }
-  }
-
-  /**
-   * @Given I am logged in with the :permissions permission(s)
-   */
-  public function assertLoggedInWithThePermissions($permissions) {
-    // Create user.
-    $user = (object) array(
-      'name' => $this->getRandom()->name(8),
-      'pass' => $this->getRandom()->name(16),
-    );
-    $user->mail = "{$user->name}@example.com";
-    $this->userCreate($user);
-
-    // Create and assign a temporary role with given permissions.
-    $permissions = explode(',', $permissions);
-    $rid = $this->getDriver()->roleCreate($permissions);
-    $this->getDriver()->userAddRole($user, $rid);
-    $this->roles[] = $rid;
-
-    // Login.
-    $this->login();
+  public function after(AfterScenarioScope $scope) {
   }
 
 }
