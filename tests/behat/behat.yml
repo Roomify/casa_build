@@ -17,8 +17,12 @@ default:
       javascript_session: 'selenium2'
     Drupal\DrupalExtension:
       blackbox: ~
+      api_driver: 'drupal'
+      drush_driver: 'drush'
       drush:
         root: ../..
+      drupal:
+        drupal_root: '%paths.base%/../..'
 
 imports:
   - behat.local.yml
