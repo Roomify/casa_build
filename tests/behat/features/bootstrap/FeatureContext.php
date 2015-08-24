@@ -82,4 +82,26 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     }
   }
 
+  /**
+   * @Given I am logged in with the :permissions permission(s)
+   */
+  public function assertLoggedInWithThePermissions($permissions) {
+    // Create user.
+    $user = (object) array(
+      'name' => $this->getRandom()->name(8),
+      'pass' => $this->getRandom()->name(16),
+    );
+    $user->mail = "{$user->name}@example.com";
+    $this->userCreate($user);
+
+    // Create and assign a temporary role with given permissions.
+    $permissions = explode(',', $permissions);
+    $rid = $this->getDriver()->roleCreate($permissions);
+    $this->getDriver()->userAddRole($user, $rid);
+    $this->roles[] = $rid;
+
+    // Login.
+    $this->login();
+  }
+
 }
