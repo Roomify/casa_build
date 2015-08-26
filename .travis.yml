@@ -27,6 +27,7 @@ before_script:
   - sudo chmod -R 777 sites/all/modules
   - /usr/bin/env PHP_OPTIONS="-d sendmail_path=$(which true)" drush si roomifycasa --db-url=mysql://root:@127.0.0.1/drupal --account-name=admin --account-pass=test --site-mail=webmaster@roomify.us --site-name="Casa" --yes
   - drush cc all --yes
+  - drush fra --yes
 
   # Move tests dir to working dir.
   - mv $TRAVIS_BUILD_DIR/tests .
@@ -39,7 +40,7 @@ before_script:
   - sleep 3
 
   - wget http://selenium.googlecode.com/files/selenium-server-standalone-2.25.0.jar
-  - java -jar selenium-server-standalone-2.25.0.jar -p 4444 &
+  - java -jar selenium-server-standalone-2.25.0.jar -p 4444 &> /tmp/selenium.log &
   - sleep 5
 
 script:
@@ -50,6 +51,7 @@ script:
 
 after_failure:
   - cat ~/debug.txt
+  - cat /tmp/selenium.log
 
 
 notifications:
