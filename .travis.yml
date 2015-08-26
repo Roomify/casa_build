@@ -39,8 +39,8 @@ before_script:
   - drush --debug runserver --server=builtin 8080 > ~/debug.txt 2>&1 &
   - sleep 3
 
-  - wget http://selenium.googlecode.com/files/selenium-server-standalone-2.25.0.jar
-  - java -jar selenium-server-standalone-2.25.0.jar -p 4444 &> /tmp/selenium.log &
+  - wget http://selenium-release.storage.googleapis.com/2.46/selenium-server-standalone-2.46.0.jar
+  - java -jar selenium-server-standalone-2.46.0.jar -p 4444 &> /tmp/selenium.log &
   - sleep 5
 
 script:
