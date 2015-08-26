@@ -19,7 +19,7 @@ before_script:
 
   # Run composer
   - cd ./tests/behat
-  - composer install
+  - composer --prefer-source install
   - cd ../../
 
   - drush make project.make ../roomifycasa
