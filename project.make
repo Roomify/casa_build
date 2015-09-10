@@ -7,4 +7,4 @@ projects[roomifycasa][type] = profile
 projects[roomifycasa][download][type] = git
 projects[roomifycasa][download][url] = "https://github.com/Roomify/RoomifyCasa.git"
 projects[roomifycasa][download][branch] = "master"
-projects[roomifycasa][download][tag] = "1.0"
+projects[roomifycasa][download][tag] = "1.01"
