@@ -13,9 +13,8 @@ before_script:
   - "mysql -e 'create database drupal;'"
 
   # Install drush.
-  - pear channel-discover pear.drush.org
-  - pear install drush/drush
-  - phpenv rehash
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - composer global require drush/drush:7.*
 
   # Run composer
   - cd ./tests/behat
