@@ -48,10 +48,12 @@ script:
   - touch behat.local.yml
   - ./bin/behat
 
+after_script:
+  - bash $TRAVIS_BUILD_DIR/scripts/upload.sh
+
 after_failure:
   - cat ~/debug.txt
   - cat /tmp/selenium.log
-
 
 notifications:
   slack: roomify:aFU6HbdZeXNYbuCAZNS1XTBT
