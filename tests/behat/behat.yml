@@ -9,7 +9,7 @@ default:
         - Roomify\RoomifyExtension\Context\RoomifyContext
   extensions:
     Behat\MinkExtension:
-      base_url:  'http://127.0.0.1:8080'
+      base_url:  'http://127.0.0.1:8888'
       selenium2: ~
       goutte: ~
       default_session: 'goutte'

@@ -1,5 +1,7 @@
 language: php
 
+sudo: false
+
 php:
   - 5.4
 
@@ -8,9 +10,12 @@ mysql:
   username: root
   encoding: utf8
 
+addons:
+  firefox: "42.0"
+
 before_script:
-  # Create DB.
-  - "mysql -e 'create database drupal;'"
+  # Update composer.
+  - composer self-update
 
   # Install drush.
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
@@ -22,11 +27,15 @@ before_script:
   - cd ../../
 
   - drush make project.make ../roomifycasa
+
   - cd ../roomifycasa
-  - sudo chmod -R 777 sites/all/modules
-  - /usr/bin/env PHP_OPTIONS="-d sendmail_path=$(which true)" drush si roomifycasa --db-url=mysql://root:@127.0.0.1/drupal --account-name=admin --account-pass=test --site-mail=webmaster@roomify.us --site-name="Casa" --yes
+  - php -d sendmail_path=$(which true) ~/.composer/vendor/bin/drush.php --yes site-install roomifycasa --db-url=mysql://root:@127.0.0.1/drupal --account-name=admin --account-pass=test --site-mail=webmaster@roomify.us --site-name="Casa"
   - drush cc all --yes
   - drush fra --yes
+
+  # Run a webserver and wait until it is started up.
+  - drush runserver "http://127.0.0.1" 2>&1 &
+  - sleep 10
 
   # Move tests dir to working dir.
   - mv $TRAVIS_BUILD_DIR/tests .
@@ -34,8 +43,6 @@ before_script:
   # Setup display for selenium
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-  - sleep 3
-  - drush --debug runserver --server=builtin 8080 > ~/debug.txt 2>&1 &
   - sleep 3
 
   - wget http://selenium-release.storage.googleapis.com/2.48/selenium-server-standalone-2.48.2.jar
@@ -52,8 +59,10 @@ after_script:
   - bash $TRAVIS_BUILD_DIR/scripts/upload.sh
 
 after_failure:
-  - cat ~/debug.txt
-  - cat /tmp/selenium.log
+  - echo "### DB LOG ###"
+  - cd $TRAVIS_BUILD_DIR/roomifycasa
+  - drush sqlq 'SELECT * FROM watchdog\G'
+  - echo
 
 notifications:
   slack: roomify:aFU6HbdZeXNYbuCAZNS1XTBT
