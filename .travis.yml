@@ -66,3 +66,11 @@ after_failure:
 
 notifications:
   slack: roomify:aFU6HbdZeXNYbuCAZNS1XTBT
+
+# Cache composer/drush files
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - vendor
+    - tests/behat/vendor
+    - $HOME/.drush/cache
